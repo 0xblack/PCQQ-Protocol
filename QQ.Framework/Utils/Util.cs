@@ -259,12 +259,12 @@ namespace QQ.Framework.Utils
         /// <returns></returns>
         public static long GetTimeMillis(DateTime dateTime)
         {
-            return (long) (dateTime - baseDateTime).TotalMilliseconds;
+            return (long)(dateTime - baseDateTime).TotalMilliseconds;
         }
 
         public static long GetTimeSeconds(DateTime dateTime)
         {
-            return (long) (dateTime - baseDateTime).TotalSeconds;
+            return (long)(dateTime - baseDateTime).TotalSeconds;
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace QQ.Framework.Utils
             {
                 for (var i = 0; i < 4; i++)
                 {
-                    array[i] = (byte) int.Parse(array2[i]);
+                    array[i] = (byte)int.Parse(array2[i]);
                 }
             }
 
@@ -346,12 +346,24 @@ namespace QQ.Framework.Utils
         /// <returns></returns>
         public static string GetExternalIp()
         {
-            var mc = Regex.Match(
-                new HttpClient().GetStringAsync("http://www.net.cn/static/customercare/yourip.asp").Result,
-                @"您的本地上网IP是：<h2>(\d+\.\d+\.\d+\.\d+)</h2>");
-            if (mc.Success && mc.Groups.Count > 1)
+            var httpClient = new HttpClient();
+            //多重IP获取地址
+            var ipServerArr = new string[] {
+                "http://www.net.cn/static/customercare/yourip.asp",
+                "http://2018.ip138.com/ic.asp",
+                "https://api.ipify.org?format=json"
+            };
+
+            var regex = new Regex(@"(\d+.\d+.\d+.\d+)");
+            //设置超时为20秒，避免长时间等待
+            httpClient.Timeout = TimeSpan.FromSeconds(20);
+            foreach (var ipServer in ipServerArr)
             {
-                return mc.Groups[1].Value;
+                var mc = regex.Match(httpClient.GetStringAsync(ipServer).Result);
+                if (mc.Success && mc.Groups.Count > 1)
+                {
+                    return mc.Groups[1].Value;
+                }
             }
 
             throw new Exception("获取IP失败");
@@ -376,7 +388,7 @@ namespace QQ.Framework.Utils
             for (int i = 0, len = str.Length; i < len; ++i)
             {
                 hash += (hash << 5) + str[i];
-                hashstr = $"(({hashstr}<<5)+{(int) str[i]})";
+                hashstr = $"(({hashstr}<<5)+{(int)str[i]})";
             }
 
             return (hash & 0x7fffffff).ToString();
@@ -410,7 +422,7 @@ namespace QQ.Framework.Utils
 
         public static byte[] ToBytesArray(this Stream stream)
         {
-            return ((MemoryStream) stream).ToArray();
+            return ((MemoryStream)stream).ToArray();
         }
 
         /// <summary>
@@ -465,7 +477,7 @@ namespace QQ.Framework.Utils
             {
                 var binaryReader = new BinaryReader(memoryStream);
                 memoryStream.Position = 0L;
-                return binaryReader.ReadBytes((int) memoryStream.Length);
+                return binaryReader.ReadBytes((int)memoryStream.Length);
             }
         }
 
@@ -473,10 +485,10 @@ namespace QQ.Framework.Utils
 
         public static void int16_to_buf(byte[] TEMP_BYTE_ARRAY, long index, long Num)
         {
-            TEMP_BYTE_ARRAY[index] = (byte) ((Num & 0xff000000) >> 24);
-            TEMP_BYTE_ARRAY[index + 1] = (byte) ((Num & 0x00ff0000) >> 16);
-            TEMP_BYTE_ARRAY[index + 2] = (byte) ((Num & 0x0000ff00) >> 8);
-            TEMP_BYTE_ARRAY[index + 3] = (byte) (Num & 0x000000ff);
+            TEMP_BYTE_ARRAY[index] = (byte)((Num & 0xff000000) >> 24);
+            TEMP_BYTE_ARRAY[index + 1] = (byte)((Num & 0x00ff0000) >> 16);
+            TEMP_BYTE_ARRAY[index + 2] = (byte)((Num & 0x0000ff00) >> 8);
+            TEMP_BYTE_ARRAY[index + 3] = (byte)(Num & 0x000000ff);
         }
 
         public static int buf_to_int16(byte[] TEMP_BYTE_ARRAY, long index)
@@ -511,7 +523,7 @@ namespace QQ.Framework.Utils
 
         public static void BEWrite(this BinaryWriter bw, char v)
         {
-            bw.Write(BitConverter.GetBytes((ushort) v).Reverse().ToArray());
+            bw.Write(BitConverter.GetBytes((ushort)v).Reverse().ToArray());
         }
 
         public static void BEWrite(this BinaryWriter bw, int v)
@@ -522,22 +534,22 @@ namespace QQ.Framework.Utils
         // 注意: 此处的long和ulong均为四个字节，而不是八个。
         public static void BEWrite(this BinaryWriter bw, long v)
         {
-            bw.Write(BitConverter.GetBytes((uint) v).Reverse().ToArray());
+            bw.Write(BitConverter.GetBytes((uint)v).Reverse().ToArray());
         }
 
         public static void BEWrite(this BinaryWriter bw, ulong v)
         {
-            bw.Write(BitConverter.GetBytes((uint) v).Reverse().ToArray());
+            bw.Write(BitConverter.GetBytes((uint)v).Reverse().ToArray());
         }
 
         public static char BEReadChar(this BinaryReader br)
         {
-            return (char) br.BEReadUInt16();
+            return (char)br.BEReadUInt16();
         }
 
         public static ushort BEReadUInt16(this BinaryReader br)
         {
-            return (ushort) ((br.ReadByte() << 8) + br.ReadByte());
+            return (ushort)((br.ReadByte() << 8) + br.ReadByte());
         }
 
         public static int BEReadInt32(this BinaryReader br)
@@ -547,7 +559,7 @@ namespace QQ.Framework.Utils
 
         public static uint BEReadUInt32(this BinaryReader br)
         {
-            return (uint) ((br.ReadByte() << 24) | (br.ReadByte() << 16) | (br.ReadByte() << 8) | br.ReadByte());
+            return (uint)((br.ReadByte() << 24) | (br.ReadByte() << 16) | (br.ReadByte() << 8) | br.ReadByte());
         }
 
         #endregion
